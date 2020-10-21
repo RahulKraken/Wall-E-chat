@@ -10,7 +10,7 @@ Simple server at the backend. Accepts socket connections and distributes them in
 
 ### Object detection
 
-Computer vision model running on the device. Takes images and sends singal to body control systems to move the device accordingly.
+Computer vision model running on the device. Takes images and sends signal to body control systems to move the device accordingly.
 
 ### Robo
 
