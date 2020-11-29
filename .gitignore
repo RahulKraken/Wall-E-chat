@@ -2,3 +2,5 @@
 *.iml
 output/
 out/
+build/
+*.exe
