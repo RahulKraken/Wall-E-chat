@@ -4,3 +4,5 @@ output/
 out/
 build/
 *.exe
+*.gzip
+.ipynb_checkpoints/
