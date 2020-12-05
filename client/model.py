@@ -13,9 +13,6 @@ from collections import defaultdict
 from io import StringIO
 from PIL import Image
 
-import cv2
-
-
 # import object detection module
 from object_detection.utils import ops as utils_ops
 from object_detection.utils import label_map_util
@@ -28,17 +25,11 @@ utils_ops.tf = tf.compat.v1
 tf.gfile = tf.io.gfile
 
 
-# # Model preparation 
+# Model preparation 
 
-# ## Variables
-# 
-# Any model exported using the `export_inference_graph.py` tool can be loaded here simply by changing the path.
-# 
-# By default we use an "SSD with Mobilenet" model here. See the [detection model zoo](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md) for a list of other models that can be run out-of-the-box with varying speeds and accuracies.
-
-# ## Loader
+# Loader
 def load_model(model_name):
-  model = tf.saved_model.load(model_name + '/saved_model')
+  model = tf.saved_model.load('model_files/' + model_name + '/saved_model')
 
   return model
 
@@ -89,9 +80,9 @@ def run_inference_for_single_image(model, image):
   return output_dict
 
 
-def show_inference(model, image_np):
+def show_inference_detection(image_np):
   # Actual detection
-  output_dict = run_inference_for_single_image(model, image_np)
+  output_dict = run_inference_for_single_image(detection_model, image_np)
   # Visualization of the results of a detection.
   vis_util.visualize_boxes_and_labels_on_image_array(
       image_np,
@@ -102,26 +93,26 @@ def show_inference(model, image_np):
       instance_masks=output_dict.get('detection_masks_reframed', None),
       use_normalized_coordinates=True,
       line_thickness=8)
-  
-  # display(Image.fromarray(image_np))
-  cv2.imshow('detection model', cv2.resize(image_np, (800, 600)))
-  if cv2.waitKey(25) & 0xFF == ord('q'):
-    cv2.destroyAllWindows()
-    exit(0)
+  return image_np  
 
-cap = cv2.VideoCapture(0)
-while True:
-  ret, frame = cap.read()
-  show_inference(detection_model, frame)
+'''
+# Instance Segmentation
+model_name = "mask_rcnn_inception_resnet_v2_1024x1024_coco17_gpu-8"
+masking_model = load_model(model_name)
 
-# # Instance Segmentation
-# model_name = "mask_rcnn_inception_resnet_v2_atrous_coco_2018_01_28"
-# masking_model = load_model(model_name)
-
-
-# # The instance segmentation model includes a `detection_masks` output:
-# masking_model.output_shapes
-
-# for image_path in TEST_IMAGE_PATHS:
-#   show_inference(masking_model, image_path)
+def show_inference_masking(image_np):
+  # Actual detection
+  output_dict = run_inference_for_single_image(masking_model, image_np)
+  # Visualization of the results of a detection.
+  vis_util.visualize_boxes_and_labels_on_image_array(
+      image_np,
+      output_dict['detection_boxes'],
+      output_dict['detection_classes'],
+      output_dict['detection_scores'],
+      category_index,
+      instance_masks=output_dict.get('detection_masks_reframed', None),
+      use_normalized_coordinates=True,
+      line_thickness=8)
+  return image_np  
+'''
 

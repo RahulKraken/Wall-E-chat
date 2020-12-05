@@ -6,3 +6,5 @@ build/
 *.exe
 *.gzip
 .ipynb_checkpoints/
+__pycache__/
+model_files/
