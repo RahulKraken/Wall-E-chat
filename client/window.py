@@ -33,6 +33,7 @@ class PhotoBoothApp:
         self.frame = imutils.resize(self.frame, width=300)
 
         image = cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB)
+        image = cv2.resize(image, (800, 600))
         image = Image.fromarray(image)
         image = ImageTk.PhotoImage(image)
 
@@ -44,7 +45,7 @@ class PhotoBoothApp:
           self.panel.configure(image=image)
           self.panel.image = image
     except RuntimeError as e:
-      print("[INFO] caught a RuntimeError", e)
+      print("[INFO] caught a RuntimeError:", e)
   
   def onClose(self):
     print("[INFO] closing...")
