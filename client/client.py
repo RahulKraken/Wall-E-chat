@@ -1,27 +1,37 @@
-# import cv2
-# from model import *
+import socket, cv2, pickle, struct
+from model import *
 
-# cap = cv2.VideoCapture(0)
+host_ip = '172.23.80.1'
+port = 9999
 
-# while True:
-#   ret, frame = cap.read()
-#   img = show_inference_detection(frame)
-#   cv2.imshow('detection', img)
-#   if cv2.waitKey(1) & 0xFF == ord('q'):
-#     break
+client_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+client_socket.connect((host_ip,port))
+data = b""
+payload_size = struct.calcsize("Q")
 
-import socket
+while True:
+  while len(data) < payload_size :
+    packet = client_socket.recv(4*1024) # 4K
+    if not packet : break
+    data+=packet
 
-try:
-  s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-  print("created socket")
-except socket.error as err:
-  print("Failed to create socket with error: %s".format(err))
+  packed_msg_size = data[:payload_size]
+  data = data[payload_size:]
+  msg_size = struct.unpack("Q",packed_msg_size)[0]
 
-HOST = "127.0.0.1"
-PORT = 8000
+  while len(data) < msg_size:
+    data += client_socket.recv(4*1024)
 
-# connect to server
-s.connect((HOST, PORT))
+  frame_data = data[:msg_size]
+  data = data[msg_size:]
+  frame = pickle.loads(frame_data)
 
-print("connected to server")
+  img = show_inference_detection(frame)
+  cv2.imshow("Received",img)
+
+  key = cv2.waitKey(1) & 0xFF
+  if key == ord('q'):
+    break
+
+client_socket.close()
+
